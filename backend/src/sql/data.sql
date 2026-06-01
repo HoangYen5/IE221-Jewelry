@@ -1,0 +1,336 @@
+DROP DATABASE IF EXISTS QLBH;
+CREATE DATABASE QLBH;
+USE QLBH;
+-- Bảng tham số
+CREATE TABLE THAMSO (
+    TenThamSo VARCHAR(100) PRIMARY KEY,
+    TiLeTraTruoc FLOAT NOT NULL
+);
+
+-- Bảng đơn vị tính
+CREATE TABLE DONVITINH (
+    MaDVT VARCHAR(50) PRIMARY KEY,
+    TenDVT VARCHAR(100) NOT NULL,
+    createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updatedAt DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+-- Bảng loại sản phẩm
+CREATE TABLE LOAISANPHAM (
+    MaLoaiSanPham VARCHAR(50) PRIMARY KEY,
+    TenLoaiSanPham VARCHAR(100) NOT NULL,
+    MaDVT VARCHAR(50) NOT NULL,
+    PhanTramLoiNhuan DECIMAL(5, 2) DEFAULT 30, 
+    createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT FK_Loai_DVT FOREIGN KEY (MaDVT) REFERENCES DONVITINH(MaDVT) ON UPDATE CASCADE
+);
+
+-- Bảng sản phẩm
+CREATE TABLE SANPHAM (
+    MaSanPham VARCHAR(50) PRIMARY KEY,
+    TenSanPham VARCHAR(100) NOT NULL,
+    MaLoaiSanPham VARCHAR(50) NOT NULL,
+    SoLuongTon INT DEFAULT 0,
+    DonGiaMuaVao DECIMAL(18, 2) DEFAULT 0,
+    DonGiaBanRa DECIMAL(18, 2) DEFAULT 0,
+    HinhAnh VARCHAR(300),
+    isDelete BOOLEAN DEFAULT FALSE,
+    createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updatedAt DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    CONSTRAINT FK_SanPham_Loai FOREIGN KEY (MaLoaiSanPham) REFERENCES LOAISANPHAM(MaLoaiSanPham) ON UPDATE CASCADE
+);
+
+-- Bảng khách hàng
+CREATE TABLE KHACHHANG (
+    MaKH VARCHAR(50) PRIMARY KEY,
+    TenKH VARCHAR(100) NOT NULL,
+    SoDienThoai VARCHAR(15),
+    DiaChi VARCHAR(255),
+    createdAt DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Bảng nhà cung cấp
+CREATE TABLE NHACUNGCAP (
+    MaNCC VARCHAR(50) PRIMARY KEY,
+    TenNCC VARCHAR(100) NOT NULL,
+    DiaChi VARCHAR(255),
+    SoDienThoai VARCHAR(15),
+    createdAt DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Bảng tài khoản
+CREATE TABLE TAIKHOAN (
+    MaTaiKhoan INT AUTO_INCREMENT PRIMARY KEY,
+    TenTaiKhoan VARCHAR(50) NOT NULL UNIQUE,
+    MatKhau VARCHAR(255) NOT NULL,
+    Role ENUM('admin', 'seller', 'warehouse') NOT NULL DEFAULT 'seller',
+    createdAt DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Bảng loại dịch vụ
+CREATE TABLE LOAIDICHVU (
+    MaLoaiDV VARCHAR(50) PRIMARY KEY,
+    TenLoaiDV VARCHAR(100) NOT NULL,
+    DonGiaDV DECIMAL(18, 2) DEFAULT 0,
+    PhanTramTraTruoc DECIMAL(5, 2) DEFAULT 0.5
+);
+
+-- Phiếu mua hàng
+CREATE TABLE PHIEUMUAHANG (
+    SoPhieuMH VARCHAR(50) PRIMARY KEY,
+    NgayLap DATETIME DEFAULT CURRENT_TIMESTAMP,
+    MaNCC VARCHAR(50) NOT NULL,
+    TongTien DECIMAL(18, 2) DEFAULT 0,
+    createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT FK_PhieuMua_NCC FOREIGN KEY (MaNCC) REFERENCES NHACUNGCAP(MaNCC) ON UPDATE CASCADE
+);
+
+-- Chi tiết mua hàng
+CREATE TABLE CHITIETMUAHANG (
+    MaChiTietMH VARCHAR(50) PRIMARY KEY,
+    SoPhieuMH VARCHAR(50) NOT NULL,
+    MaSanPham VARCHAR(50) NOT NULL,
+    SoLuongMua INT NOT NULL,
+    DonGiaMua DECIMAL(18, 2) NOT NULL,
+    ThanhTien DECIMAL(18, 2) DEFAULT 0,
+    createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT FK_CTMua_Phieu FOREIGN KEY (SoPhieuMH) REFERENCES PHIEUMUAHANG(SoPhieuMH) ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT FK_CTMua_SP FOREIGN KEY (MaSanPham) REFERENCES SANPHAM(MaSanPham) ON UPDATE CASCADE
+);
+
+-- Phiếu bán hàng
+CREATE TABLE PHIEUBANHANG (
+    SoPhieuBH VARCHAR(50) PRIMARY KEY,
+    NgayLap DATETIME DEFAULT CURRENT_TIMESTAMP,
+    MaKH VARCHAR(50) NOT NULL,
+    TongTien DECIMAL(18, 2) DEFAULT 0,
+    createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT FK_PhieuBan_KH FOREIGN KEY (MaKH) REFERENCES KHACHHANG(MaKH) ON UPDATE CASCADE
+);
+
+-- Chi tiết bán hàng
+CREATE TABLE CHITIETBANHANG (
+    MaChiTietBH VARCHAR(50) PRIMARY KEY,
+    SoPhieuBH VARCHAR(50) NOT NULL,
+    MaSanPham VARCHAR(50) NOT NULL,
+    SoLuongBan INT NOT NULL,
+    DonGiaBan DECIMAL(18, 2) NOT NULL,
+    ThanhTien DECIMAL(18, 2) DEFAULT 0,
+    createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT FK_CTBan_Phieu FOREIGN KEY (SoPhieuBH) REFERENCES PHIEUBANHANG(SoPhieuBH) ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT FK_CTBan_SP FOREIGN KEY (MaSanPham) REFERENCES SANPHAM(MaSanPham) ON UPDATE CASCADE
+);
+
+-- Phiếu dịch vụ
+CREATE TABLE PHIEUDICHVU (
+    SoPhieuDV VARCHAR(50) PRIMARY KEY,
+    NgayLap DATETIME DEFAULT CURRENT_TIMESTAMP,
+    MaKH VARCHAR(50) NOT NULL,
+    TongTien DECIMAL(18, 2) DEFAULT 0,
+    TongTienTraTruoc DECIMAL(18, 2) DEFAULT 0,
+    TongTienConLai DECIMAL(18, 2) DEFAULT 0,
+    TinhTrang VARCHAR(50) DEFAULT N'Đang xử lý',
+    createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT FK_PhieuDV_KH FOREIGN KEY (MaKH) REFERENCES KHACHHANG(MaKH) ON UPDATE CASCADE
+);
+
+-- Chi tiết phiếu dịch vụ
+CREATE TABLE CHITIETPHIEUDICHVU (
+    MaChiTietDV VARCHAR(50) PRIMARY KEY,
+    SoPhieuDV VARCHAR(50) NOT NULL,
+    MaLoaiDV VARCHAR(50) NOT NULL,
+    DonGiaDuocTinh DECIMAL(18, 2) NOT NULL,
+    SoLuong INT NOT NULL DEFAULT 1,
+    ThanhTien DECIMAL(18, 2) DEFAULT 0,
+    TraTruoc DECIMAL(18, 2) DEFAULT 0,
+    ConLai DECIMAL(18, 2) DEFAULT 0,
+    NgayGiao DATETIME,
+     TinhTrang NVARCHAR(50) DEFAULT N'Chưa hoàn thành',
+    createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT FK_CTDV_Phieu FOREIGN KEY (SoPhieuDV) REFERENCES PHIEUDICHVU(SoPhieuDV) ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT FK_CTDV_Loai FOREIGN KEY (MaLoaiDV) REFERENCES LOAIDICHVU(MaLoaiDV) ON UPDATE CASCADE
+);
+
+-- Báo cáo tồn kho
+CREATE TABLE BAOCAOTONKHO (
+    Thang INT NOT NULL,
+    Nam INT NOT NULL,
+    MaSanPham VARCHAR(50) NOT NULL,
+    TonDau INT DEFAULT 0,
+    SoLuongMuaVao INT DEFAULT 0,
+    SoLuongBanRa INT DEFAULT 0,
+    TonCuoi INT DEFAULT 0,
+    PRIMARY KEY (Thang, Nam, MaSanPham),
+    CONSTRAINT FK_BaoCao_SP FOREIGN KEY (MaSanPham) REFERENCES SANPHAM(MaSanPham) ON UPDATE CASCADE
+);
+
+
+INSERT INTO THAMSO (TenThamSo, TiLeTraTruoc) VALUES ('TiLeTraTruoc', 50);
+
+INSERT INTO TAIKHOAN (TenTaiKhoan, MatKhau, Role) VALUES
+('admin', '123456', 'admin'),
+('thukho', '123456', 'warehouse'),
+('banhang', '123456', 'seller');
+
+INSERT INTO KHACHHANG (MaKH, TenKH, SoDienThoai, DiaChi) VALUES
+('KH01', 'Nguyễn Văn An', '0909111222', 'Quận 1'),
+('KH02', 'Trần Thị Bích', '0909333444', 'Quận 3'),
+('KH03', 'Lê Văn Cường', '0909555666', 'Quận 5'),
+('KH04', 'Phạm Thị Dung', '0909777888', 'Quận 7'),
+('KH05', 'Hoàng Văn Em', '0909999000', 'Quận 10'),
+('KH06', 'Vũ Thị Mai', '0909123123', 'Bình Thạnh'),
+('KH07', 'Đặng Văn Nam', '0909456456', 'Gò Vấp'),
+('KH08', 'Bùi Thị Hoa', '0909789789', 'Tân Bình'),
+('KH09', 'Ngô Văn Hùng', '0909321321', 'Thủ Đức'),
+('KH10', 'Lý Thị Lan', '0909654654', 'Bình Tân');
+
+INSERT INTO NHACUNGCAP (MaNCC, TenNCC, DiaChi, SoDienThoai) VALUES
+('NCC01', 'PNJ', 'Phú Nhuận, HCM', '02839951703'),
+('NCC02', 'Doji', 'Hà Nội', '18001168'),
+('NCC03', 'SJC', 'Quận 3, HCM', '02839293388'),
+('NCC04', 'Bảo Tín Minh Châu', 'Hà Nội', '18006899'),
+('NCC05', 'Thế Giới Kim Cương', 'Quận 1, HCM', '18007799'),
+('NCC06', 'Tiệm Vàng Mi Hồng', 'Bình Thạnh, HCM', '02838410068'),
+('NCC07', 'Swarovski VN', 'Quận 1, HCM', '02838212233'),
+('NCC08', 'Pandora VN', 'Quận 7, HCM', '02854133333'),
+('NCC09', 'Xưởng Gia Công Chợ Lớn', 'Quận 5, HCM', '0909123456'),
+('NCC10', 'Ngọc Trai Phú Quốc', 'Kiên Giang', '0912345678');
+
+INSERT INTO DONVITINH (MaDVT, TenDVT) VALUES
+('DVT01', 'Cái'), ('DVT02', 'Chỉ'), ('DVT03', 'Lượng'), ('DVT04', 'Gram'),
+('DVT05', 'Ly'), ('DVT06', 'Carat'), ('DVT07', 'Bộ'), ('DVT08', 'Cặp'),
+('DVT09', 'Viên'), ('DVT10', 'Chuỗi');
+
+-- LOẠI SẢN PHẨM
+INSERT INTO LOAISANPHAM (MaLoaiSanPham, TenLoaiSanPham, MaDVT, PhanTramLoiNhuan) VALUES
+('LSP01', 'Vàng 24K', 'DVT02', 10),      
+('LSP02', 'Vàng 18K', 'DVT02', 15), 
+('LSP03', 'Vàng Ý', 'DVT04', 20),      
+('LSP04', 'Bạc Cao Cấp', 'DVT04', 30),  
+('LSP05', 'Kim Cương', 'DVT05', 25),     
+('LSP06', 'Đá Quý', 'DVT06', 35),        
+('LSP07', 'Nhẫn Cưới', 'DVT08', 25),    
+('LSP08', 'Dây Chuyền', 'DVT10', 20),   
+('LSP09', 'Lắc Tay', 'DVT01', 20),       
+('LSP10', 'Bông Tai', 'DVT08', 25);
+
+-- SẢN PHẨM 
+INSERT INTO SANPHAM (MaSanPham, TenSanPham, MaLoaiSanPham, SoLuongTon, DonGiaMuaVao, DonGiaBanRa, HinhAnh) VALUES
+('SP01', 'Nhẫn Vàng 24K Trơn 1 Chỉ', 'LSP01', 10, 5600000, 6160000, 'https://res.cloudinary.com/dfwvvjaxz/image/upload/v1765604185/nh%E1%BA%ABn_1_ch%E1%BB%89_rzkjwy.png'),
+('SP02', 'Nhẫn Cưới Kim Cương', 'LSP07', 2, 14000000, 17500000, 'https://res.cloudinary.com/dfwvvjaxz/image/upload/v1765604186/nh%E1%BA%ABn_c%C6%B0%E1%BB%9Bi_kim_c%C6%B0%C6%A1ng_f7pomv.png'),
+('SP03', 'Dây Chuyền Vàng Ý 18K', 'LSP03', 10, 3500000, 4200000, 'https://res.cloudinary.com/dfwvvjaxz/image/upload/v1765604186/d%C3%A2y_chuy%E1%BB%81n_v%C3%A0ng_%C3%BD_bk8c8j.png'),
+('SP04', 'Lắc Tay Bạc Charm', 'LSP04', 22, 700000, 910000, 'https://res.cloudinary.com/dfwvvjaxz/image/upload/v1765604185/l%E1%BA%AFc_tay_b%E1%BA%A1c_charm_ndswre.png'),
+('SP05', 'Viên Kim Cương 5ly4', 'LSP05', 0, 21000000, 26250000, 'https://res.cloudinary.com/dfwvvjaxz/image/upload/v1765604185/5ly4_mvclzj.png'),
+('SP06', 'Bông Tai Ngọc Trai', 'LSP10', 2, 2100000, 2625000, 'https://res.cloudinary.com/dfwvvjaxz/image/upload/v1765604184/b%C3%B4ng_tai_viryzu.png'),
+('SP07', 'Vòng Cẩm Thạch', 'LSP06', 2, 5600000, 7560000, 'https://res.cloudinary.com/dfwvvjaxz/image/upload/v1765604186/v%C3%B2ng_c%E1%BA%A9m_th%E1%BA%A1ch_eag5rf.png'),
+('SP08', 'Kiềng Vàng 24K 5 Chỉ', 'LSP01', 1, 28000000, 30800000, 'https://res.cloudinary.com/dfwvvjaxz/image/upload/v1765604186/ki%E1%BB%81ng_v%C3%A0ng_wavxbc.png'),
+('SP09', 'Mặt Dây Chuyền Ruby', 'LSP06', 3, 4200000, 5670000, 'https://res.cloudinary.com/dfwvvjaxz/image/upload/v1765604185/m%E1%BA%B7t_chuy%E1%BB%81n_v%C3%A0ng_doo9ns.png'),
+('SP10', 'Nhẫn Nam Đá Đen', 'LSP02', 3, 2800000, 3220000, 'https://res.cloudinary.com/dfwvvjaxz/image/upload/v1765604187/nh%E1%BA%ABn_nam_knrpnh.png');
+
+-- MUA HÀNG
+INSERT INTO PHIEUMUAHANG (SoPhieuMH, NgayLap, MaNCC, TongTien) VALUES
+('PMH01', '2025-01-10 09:00:00', 'NCC01', 56000000), 
+('PMH02', '2025-01-20 10:00:00', 'NCC02', 28000000), 
+('PMH03', '2025-02-05 14:00:00', 'NCC03', 17500000), 
+('PMH04', '2025-02-15 15:00:00', 'NCC04', 14000000),
+('PMH05', '2025-03-10 09:30:00', 'NCC05', 42000000),
+('PMH06', '2025-04-12 11:00:00', 'NCC06', 10500000),
+('PMH07', '2025-05-20 16:00:00', 'NCC07', 16800000),
+('PMH08', '2025-06-15 08:30:00', 'NCC08', 56000000),
+('PMH09', '2025-07-22 13:00:00', 'NCC09', 21000000),
+('PMH10', '2025-08-08 10:00:00', 'NCC10', 14000000),
+('PMH11', '2025-09-05 09:00:00', 'NCC01', 28000000),
+('PMH12', '2025-09-20 14:00:00', 'NCC02', 42000000),
+('PMH13', '2025-10-10 11:00:00', 'NCC03', 35000000),
+('PMH14', '2025-11-02 15:30:00', 'NCC04', 7000000),
+('PMH15', '2025-11-15 09:00:00', 'NCC05', 21000000);
+
+-- Chi tiết mua
+INSERT INTO CHITIETMUAHANG (MaChiTietMH, SoPhieuMH, MaSanPham, SoLuongMua, DonGiaMua, ThanhTien) VALUES
+('CTMH01', 'PMH01', 'SP01', 10, 5600000, 56000000),
+('CTMH02', 'PMH02', 'SP02', 2, 14000000, 28000000),
+('CTMH03', 'PMH03', 'SP03', 5, 3500000, 17500000),
+('CTMH04', 'PMH04', 'SP04', 20, 700000, 14000000),
+('CTMH05', 'PMH05', 'SP05', 2, 21000000, 42000000),
+('CTMH06', 'PMH06', 'SP06', 5, 2100000, 10500000),
+('CTMH07', 'PMH07', 'SP07', 3, 5600000, 16800000),
+('CTMH08', 'PMH08', 'SP08', 2, 28000000, 56000000),
+('CTMH09', 'PMH09', 'SP09', 5, 4200000, 21000000),
+('CTMH10', 'PMH10', 'SP10', 5, 2800000, 14000000),
+('CTMH11', 'PMH11', 'SP01', 5, 5600000, 28000000),
+('CTMH12', 'PMH12', 'SP02', 3, 14000000, 42000000),
+('CTMH13', 'PMH13', 'SP03', 10, 3500000, 35000000),
+('CTMH14', 'PMH14', 'SP04', 10, 700000, 7000000),
+('CTMH15', 'PMH15', 'SP05', 1, 21000000, 21000000);
+
+-- BÁN HÀNG
+INSERT INTO PHIEUBANHANG (SoPhieuBH, NgayLap, MaKH, TongTien) VALUES
+('PBH01', '2025-01-15 10:00:00', 'KH01', 12320000),
+('PBH02', '2025-01-25 14:00:00', 'KH02', 17500000),
+('PBH03', '2025-02-14 18:00:00', 'KH03', 8400000),
+('PBH04', '2025-02-20 09:00:00', 'KH04', 4550000),
+('PBH05', '2025-03-08 19:00:00', 'KH05', 26250000),
+('PBH06', '2025-04-15 10:00:00', 'KH06', 7875000),
+('PBH07', '2025-05-25 15:00:00', 'KH07', 7560000),
+('PBH08', '2025-06-20 11:00:00', 'KH08', 30800000),
+('PBH09', '2025-07-25 16:00:00', 'KH09', 11340000),
+('PBH10', '2025-08-10 09:00:00', 'KH10', 6440000),
+('PBH11', '2025-09-10 14:00:00', 'KH01', 18480000),
+('PBH12', '2025-09-25 18:00:00', 'KH02', 35000000),
+('PBH13', '2025-10-15 10:00:00', 'KH03', 12600000),
+('PBH14', '2025-11-05 15:00:00', 'KH04', 2730000),
+('PBH15', '2025-11-20 19:00:00', 'KH05', 52500000);
+
+-- Chi tiết bán
+INSERT INTO CHITIETBANHANG (MaChiTietBH, SoPhieuBH, MaSanPham, SoLuongBan, DonGiaBan, ThanhTien) VALUES
+('CTBH01', 'PBH01', 'SP01', 2, 6160000, 12320000),
+('CTBH02', 'PBH02', 'SP02', 1, 17500000, 17500000),
+('CTBH03', 'PBH03', 'SP03', 2, 4200000, 8400000),
+('CTBH04', 'PBH04', 'SP04', 5, 910000, 4550000),
+('CTBH05', 'PBH05', 'SP05', 1, 26250000, 26250000),
+('CTBH06', 'PBH06', 'SP06', 3, 2625000, 7875000),
+('CTBH07', 'PBH07', 'SP07', 1, 7560000, 7560000),
+('CTBH08', 'PBH08', 'SP08', 1, 30800000, 30800000),
+('CTBH09', 'PBH09', 'SP09', 2, 5670000, 11340000),
+('CTBH10', 'PBH10', 'SP10', 2, 3220000, 6440000),
+('CTBH11', 'PBH11', 'SP01', 3, 6160000, 18480000),
+('CTBH12', 'PBH12', 'SP02', 2, 17500000, 35000000),
+('CTBH13', 'PBH13', 'SP03', 3, 4200000, 12600000),
+('CTBH14', 'PBH14', 'SP04', 3, 910000, 2730000),
+('CTBH15', 'PBH15', 'SP05', 2, 26250000, 52500000);
+
+-- DỊCH VỤ
+INSERT INTO LOAIDICHVU (MaLoaiDV, TenLoaiDV, DonGiaDV, PhanTramTraTruoc) VALUES
+('LDV01', 'Đánh bóng làm mới', 50000, 0.5),
+('LDV02', 'Xi mạ vàng 18K', 200000, 0.5),
+('LDV03', 'Xi mạ vàng trắng', 250000, 0.5),
+('LDV04', 'Hàn dây chuyền', 100000, 0.5),
+('LDV05', 'Thu ni nhẫn', 150000, 0.5),
+('LDV06', 'Nới ni nhẫn', 150000, 0.5),
+('LDV07', 'Khắc chữ Laser', 100000, 0.5),
+('LDV08', 'Đính đá tấm', 50000, 0.5),
+('LDV09', 'Kiểm định đá quý', 500000, 0.5),
+('LDV10', 'Thiết kế theo yêu cầu', 2000000, 0.5);
+
+INSERT INTO PHIEUDICHVU (SoPhieuDV, NgayLap, MaKH, TongTien, TongTienTraTruoc, TongTienConLai, TinhTrang) VALUES
+('PDV01', '2025-01-10 09:00:00', 'KH01', 50000, 50000, 0, 'Hoàn Thành'),
+('PDV02', '2025-02-15 10:00:00', 'KH02', 200000, 100000, 100000, 'Đang Xử Lý'),
+('PDV03', '2025-03-20 11:00:00', 'KH03', 250000, 250000, 0, 'Hoàn Thành'),
+('PDV04', '2025-04-25 14:00:00', 'KH04', 100000, 50000, 50000, 'Đang Xử Lý'),
+('PDV05', '2025-05-30 15:00:00', 'KH05', 150000, 150000, 0, 'Hoàn Thành'),
+('PDV06', '2025-06-05 09:00:00', 'KH06', 150000, 100000, 50000, 'Đang Xử Lý'),
+('PDV07', '2025-07-10 10:00:00', 'KH07', 100000, 100000, 0, 'Hoàn Thành'),
+('PDV08', '2025-08-15 11:00:00', 'KH08', 50000, 50000, 0, 'Hoàn Thành'),
+('PDV09', '2025-09-20 14:00:00', 'KH09', 500000, 300000, 200000, 'Đang Xử Lý'),
+('PDV10', '2025-10-25 15:00:00', 'KH10', 2000000, 1000000, 1000000, 'Đang Xử Lý');
+INSERT INTO CHITIETPHIEUDICHVU (MaChiTietDV, SoPhieuDV, MaLoaiDV, DonGiaDuocTinh, SoLuong, ThanhTien, TraTruoc, ConLai, NgayGiao, TinhTrang) VALUES
+('CTDV01', 'PDV01', 'LDV01', 50000, 1, 50000, 50000, 0, '2025-01-11', 'Đã Giao'),
+('CTDV02', 'PDV02', 'LDV02', 200000, 1, 200000, 100000, 100000, NULL, 'Đang Xi Mạ'),
+('CTDV03', 'PDV03', 'LDV03', 250000, 1, 250000, 250000, 0, '2025-03-22', 'Đã Giao'),
+('CTDV04', 'PDV04', 'LDV04', 100000, 1, 100000, 50000, 50000, NULL, 'Đang Hàn'),
+('CTDV05', 'PDV05', 'LDV05', 150000, 1, 150000, 150000, 0, '2025-05-31', 'Đã Giao'),
+('CTDV06', 'PDV06', 'LDV06', 150000, 1, 150000, 100000, 50000, NULL, 'Đang Sửa'),
+('CTDV07', 'PDV07', 'LDV07', 100000, 1, 100000, 100000, 0, '2025-07-11', 'Đã Giao'),
+('CTDV08', 'PDV08', 'LDV08', 50000, 1, 50000, 50000, 0, '2025-08-16', 'Đã Giao'),
+('CTDV09', 'PDV09', 'LDV09', 500000, 1, 500000, 300000, 200000, NULL, 'Đang Kiểm Định'),
+('CTDV10', 'PDV10', 'LDV10', 2000000, 1, 2000000, 1000000, 1000000, NULL, 'Đang Thiết Kế');
