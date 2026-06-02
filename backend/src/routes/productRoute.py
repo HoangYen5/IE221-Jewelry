@@ -3,6 +3,7 @@ from uuid import uuid4
 from fastapi import APIRouter, Depends, HTTPException, Request, UploadFile
 from ..service import productService
 from ..middleware.authMiddleware import verifyToken
+from ..schemas.productSchema import ProductActionRequest
 
 router = APIRouter(prefix="/api/products", tags=["products"]) 
 
@@ -62,26 +63,27 @@ async def update_product(request: Request, user=Depends(verifyToken)):
 
 
 @router.post("/delete", status_code=200)
-def delete_products(payload, user=Depends(verifyToken)):
-    if isinstance(payload, list):
-        ids = payload
+def delete_products(payload: ProductActionRequest, user=Depends(verifyToken)):
+    p_dict = payload.model_dump(exclude_unset=True)
+    if "ids" in p_dict and p_dict["ids"]:
+        ids = p_dict["ids"]
+    elif "MaSanPham" in p_dict and p_dict["MaSanPham"]:
+        ids = [p_dict["MaSanPham"]]
+    elif "id" in p_dict and p_dict["id"]:
+        ids = [p_dict["id"]]
     else:
-        ids = payload.get("ids") if isinstance(payload, dict) else None
-        if ids is None:
-            ids = [payload.get("MaSanPham") or payload.get("id")] if isinstance(payload, dict) else None
+        ids = None
+
     if not ids:
         raise HTTPException(status_code=400, detail={"errCode": 1, "message": "Thiếu danh sách sản phẩm"})
-    if isinstance(ids, dict):
-        ids = [ids]
-    if isinstance(ids, list) and ids and isinstance(ids[0], dict):
-        ids = [item.get("MaSanPham") or item.get("id") for item in ids]
+    
     deleted = productService.delete_products(ids)
     return {"errCode": 0, "deleted": deleted}
 
 
 @router.post("/active", status_code=200)
-def activate_product(payload: dict, user=Depends(verifyToken)):
-    product_id = payload.get("id") or payload.get("MaSanPham")
+def activate_product(payload: ProductActionRequest, user=Depends(verifyToken)):
+    product_id = payload.id or payload.MaSanPham
     if not product_id:
         raise HTTPException(status_code=400, detail={"errCode": 1, "message": "Thiếu id"})
     activated = productService.activate_product(product_id)
@@ -89,10 +91,6 @@ def activate_product(payload: dict, user=Depends(verifyToken)):
         raise HTTPException(status_code=404, detail={"errCode": 4, "message": "Product not found"})
     return {"errCode": 0, "activated": activated}
 
-
-@router.get("/categories", status_code=200)
-def list_categories(user=Depends(verifyToken)):
-    return {"errCode": 0, "data": productService.list_categories()}
 
 
 @router.get("/{product_id}", status_code=200)

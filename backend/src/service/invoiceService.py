@@ -14,3 +14,6 @@ def update_invoice(invoice_id, data: dict):
 
 def delete_invoice(invoice_id):
     return invoiceModel.deleteInvoice(invoice_id)
+
+def delete_invoices(invoice_ids):
+    return invoiceModel.deleteInvoices(invoice_ids)

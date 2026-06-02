@@ -1,3 +1,5 @@
+from ..schemas.categorySchema import CategoryCreate, CategoryUpdate, CategoryResponse
+from typing import Dict, Any, List
 from fastapi import APIRouter, Depends
 from ..service.productService import list_categories
 from ..middleware.authMiddleware import verifyToken

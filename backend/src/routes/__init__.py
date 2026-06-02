@@ -1,1 +1,1 @@
-from . import productRoute, userRoute, dashboardRoute, productTypeRoute, serviceTicketRoute, unitRoute, serviceTypeRoute, invoiceRoute, customerRoute, purchaseRoute, supplierRoute, reportRoute, profileRoute, employeeRoute
+from . import productRoute, userRoute, dashboardRoute, productTypeRoute, serviceTicketRoute, unitRoute, serviceTypeRoute, invoiceRoute, customerRoute, purchaseRoute, supplierRoute, reportRoute, profileRoute, employeeRoute, categoryRoute

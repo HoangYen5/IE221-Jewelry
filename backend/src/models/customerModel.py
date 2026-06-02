@@ -14,7 +14,7 @@ def getCustomerById(customer_id):
     conn = get_connection()
     try:
         cursor = conn.cursor(dictionary=True)
-        cursor.execute('SELECT * FROM khachhang WHERE MaKhachHang = %s', (customer_id,))
+        cursor.execute('SELECT * FROM khachhang WHERE MaKH = %s', (customer_id,))
         return cursor.fetchone()
     finally:
         cursor.close()
@@ -42,7 +42,7 @@ def updateCustomer(customer_id, data: dict):
         return 0
     set_clause = ','.join([f"{k} = %s" for k in data.keys()])
     values = list(data.values()) + [customer_id]
-    query = f"UPDATE khachhang SET {set_clause} WHERE MaKhachHang = %s"
+    query = f"UPDATE khachhang SET {set_clause} WHERE MaKH = %s"
     conn = get_connection()
     try:
         cursor = conn.cursor()
@@ -57,7 +57,7 @@ def deleteCustomer(customer_id):
     conn = get_connection()
     try:
         cursor = conn.cursor()
-        cursor.execute('DELETE FROM khachhang WHERE MaKhachHang = %s', (customer_id,))
+        cursor.execute('DELETE FROM khachhang WHERE MaKH = %s', (customer_id,))
         conn.commit()
         return cursor.rowcount
     finally:

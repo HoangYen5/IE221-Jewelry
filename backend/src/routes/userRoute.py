@@ -1,5 +1,6 @@
 from fastapi import APIRouter, HTTPException
 from ..service import authService
+from ..schemas.authSchema import LoginRequest, ChangePasswordRequest
 import jwt, os
 from dotenv import load_dotenv
 
@@ -9,9 +10,12 @@ JWT_SECRET = os.getenv('JWT_SECRET', 'matkhaucuaban')
 router = APIRouter(prefix="/api", tags=["auth"])
 
 @router.post('/login')
-def login(payload: dict):
-    username = payload.get('TenTaiKhoan') or payload.get('username')
-    password = payload.get('MatKhau') or payload.get('password')
+def login(payload: LoginRequest):
+    """
+    Authenticate a user and return a JWT token.
+    """
+    username = payload.TenTaiKhoan
+    password = payload.MatKhau
     if not username or not password:
         raise HTTPException(status_code=400, detail={'errCode':1, 'message':'Thiếu tài khoản hoặc mật khẩu'})
 
@@ -28,10 +32,13 @@ def login(payload: dict):
     return {'errCode': 0, 'token': token, 'user': user}
 
 @router.post('/change-password')
-def change_password(payload: dict):
-    username = payload.get('profilename') or payload.get('TenTaiKhoan') or payload.get('username')
-    old_password = payload.get('oldPassword')
-    new_password = payload.get('newPassword')
+def change_password(payload: ChangePasswordRequest):
+    """
+    Change user password.
+    """
+    username = payload.username
+    old_password = payload.oldPassword
+    new_password = payload.newPassword
 
     if not username or not old_password or not new_password:
         raise HTTPException(status_code=400, detail={'errCode':1, 'message':'Thiếu dữ liệu đổi mật khẩu'})

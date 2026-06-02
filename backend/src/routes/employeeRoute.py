@@ -1,3 +1,5 @@
+from ..schemas.employeeSchema import EmployeeCreate, EmployeeUpdate, EmployeeResponse
+from typing import Dict, Any, List
 from fastapi import APIRouter, Depends, HTTPException
 from ..service import employeeService
 from ..middleware.authMiddleware import verifyToken
@@ -18,14 +20,14 @@ def get_employee(employee_id: str, user=Depends(verifyToken)):
 
 
 @router.post("/", status_code=201)
-def create_employee(payload: dict, user=Depends(verifyToken)):
-    nid = employeeService.create_employee(payload)
+def create_employee(payload: EmployeeCreate, user=Depends(verifyToken)):
+    nid = employeeService.create_employee(payload.model_dump())
     return {"errCode":0, "insertId": nid}
 
 
 @router.put("/{employee_id}", status_code=200)
-def update_employee(employee_id: str, payload: dict, user=Depends(verifyToken)):
-    affected = employeeService.update_employee(employee_id, payload)
+def update_employee(employee_id: str, payload: EmployeeUpdate, user=Depends(verifyToken)):
+    affected = employeeService.update_employee(employee_id, payload.model_dump(exclude_unset=True))
     if affected == 0:
         raise HTTPException(status_code=404, detail={"errCode":4, "message":"Employee not found or no change"})
     return {"errCode":0, "affected": affected}

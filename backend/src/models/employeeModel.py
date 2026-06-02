@@ -4,7 +4,7 @@ def getAllEmployees():
     conn = get_connection()
     try:
         cursor = conn.cursor(dictionary=True)
-        cursor.execute('SELECT * FROM nhanvien')
+        cursor.execute('SELECT MaTaiKhoan, TenTaiKhoan, Role, createdAt FROM TAIKHOAN ORDER BY MaTaiKhoan')
         return cursor.fetchall()
     finally:
         cursor.close()
@@ -14,7 +14,7 @@ def getEmployeeById(employee_id):
     conn = get_connection()
     try:
         cursor = conn.cursor(dictionary=True)
-        cursor.execute('SELECT * FROM nhanvien WHERE MaNhanVien = %s', (employee_id,))
+        cursor.execute('SELECT MaTaiKhoan, TenTaiKhoan, Role, createdAt FROM TAIKHOAN WHERE MaTaiKhoan = %s', (employee_id,))
         return cursor.fetchone()
     finally:
         cursor.close()
@@ -23,14 +23,17 @@ def getEmployeeById(employee_id):
 def createEmployee(data: dict):
     if not data:
         return None
-    cols = ','.join(data.keys())
-    placeholders = ','.join(['%s'] * len(data))
-    values = tuple(data.values())
-    query = f"INSERT INTO nhanvien ({cols}) VALUES ({placeholders})"
     conn = get_connection()
     try:
         cursor = conn.cursor()
-        cursor.execute(query, values)
+        cursor.execute('''
+            INSERT INTO TAIKHOAN (TenTaiKhoan, MatKhau, Role)
+            VALUES (%s, %s, %s)
+        ''', (
+            data.get('TenTaiKhoan'),
+            data.get('MatKhau'),
+            data.get('Role', 'seller'),
+        ))
         conn.commit()
         return cursor.lastrowid
     finally:
@@ -40,13 +43,20 @@ def createEmployee(data: dict):
 def updateEmployee(employee_id, data: dict):
     if not data:
         return 0
-    set_clause = ','.join([f"{k} = %s" for k in data.keys()])
-    values = list(data.values()) + [employee_id]
-    query = f"UPDATE nhanvien SET {set_clause} WHERE MaNhanVien = %s"
     conn = get_connection()
     try:
         cursor = conn.cursor()
-        cursor.execute(query, tuple(values))
+        sets = []
+        vals = []
+        for k, v in data.items():
+            if k != 'MaTaiKhoan':
+                sets.append(f"{k} = %s")
+                vals.append(v)
+        if not sets:
+            return 0
+        vals.append(employee_id)
+        query = f"UPDATE TAIKHOAN SET {','.join(sets)} WHERE MaTaiKhoan = %s"
+        cursor.execute(query, tuple(vals))
         conn.commit()
         return cursor.rowcount
     finally:
@@ -57,7 +67,7 @@ def deleteEmployee(employee_id):
     conn = get_connection()
     try:
         cursor = conn.cursor()
-        cursor.execute('DELETE FROM nhanvien WHERE MaNhanVien = %s', (employee_id,))
+        cursor.execute('DELETE FROM TAIKHOAN WHERE MaTaiKhoan = %s', (employee_id,))
         conn.commit()
         return cursor.rowcount
     finally:
