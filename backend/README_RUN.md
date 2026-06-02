@@ -1,19 +1,28 @@
-Backend local run helper
+# Backend local run helper
 
-1) Create virtualenv and install dependencies:
+The backend is configured to run easily using Docker and Docker Compose.
 
-```powershell
-cd backend
-.\setup_env.ps1
+## 1. Using Docker Compose (Recommended)
+
+From the `backend` folder, run:
+
+```bash
+docker compose up -d
 ```
 
-2) Run the backend:
+This will build the backend image and start the container. The backend will be available at `http://localhost:8080`.
+To stop the backend, run: `docker compose down`
 
-```powershell
+## 2. Using Docker (Manual)
+
+If you prefer to run the Docker container manually from the backend folder:
+
+```bash
 cd backend
-.\run_backend.ps1
+docker build -t jewelry_backend .
+docker run -d -p 8080:8080 --env-file .env --name jewelry_backend jewelry_backend
 ```
 
-Notes:
-- Make sure Python 3 is installed and available as `python` in your PATH.
+### Notes:
 - Edit `.env` in the `backend` folder to set your DB credentials and `JWT_SECRET`.
+- The `uploads` directory is mapped as a volume in docker-compose so uploaded files persist on your host machine.

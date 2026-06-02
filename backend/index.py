@@ -69,4 +69,4 @@ def root():
 
 if __name__ == '__main__':
     import uvicorn
-    uvicorn.run('index:app', host='0.0.0.0', port=int(os.getenv('PORT', 8080)), reload=True)
+    uvicorn.run('index:app', host='0.0.0.0', port=int(os.getenv('PORT', 8080)), reload=True, reload_excludes=["uploads"])
