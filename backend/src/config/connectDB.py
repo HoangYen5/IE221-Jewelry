@@ -6,9 +6,9 @@ load_dotenv()
 
 DB_CONFIG = {
     "host": os.getenv("DB_HOST", "localhost"),
-    "user": os.getenv("DB_USER", "root"),
-    "password": os.getenv("DB_PASS", ""),
-    "database": os.getenv("DB_NAME", "qlbh"),
+    "user": os.getenv("DB_USERNAME", "root"),
+    "password": os.getenv("DB_PASSWORD", ""),
+    "database": os.getenv("DB_DATABASE", "qlbh"),
     "port": int(os.getenv("DB_PORT", 3306)),
 }
 
@@ -22,6 +22,7 @@ def connectDB(pool_name="app_pool", pool_size=5):
             print("Kết nối Database qlbh thành công!")
         except Error as e:
             print("Kết nối thất bại:", e)
+
 
 def get_connection():
     if pool is None:
