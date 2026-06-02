@@ -1,10 +1,14 @@
 from ..config.connectDB import get_connection
 
-def getProfile(user_id):
+def getProfile(username):
+    """Get profile by username (from JWT token)."""
     conn = get_connection()
     try:
         cursor = conn.cursor(dictionary=True)
-        cursor.execute('SELECT * FROM profile WHERE id = %s', (user_id,))
+        cursor.execute(
+            'SELECT MaTaiKhoan, TenTaiKhoan, Role, createdAt FROM TAIKHOAN WHERE TenTaiKhoan = %s',
+            (username,)
+        )
         return cursor.fetchone()
     finally:
         cursor.close()

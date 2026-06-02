@@ -1,4 +1,6 @@
-from fastapi import APIRouter, Depends
+from ..schemas.supplierSchema import SupplierCreate, SupplierUpdate, SupplierResponse
+from typing import Dict, Any, List
+from fastapi import APIRouter, Depends, HTTPException
 from ..service import supplierService
 from ..middleware.authMiddleware import verifyToken
 
@@ -18,14 +20,14 @@ def get_supplier(supplier_id: str, user=Depends(verifyToken)):
 
 
 @router.post("/", status_code=201)
-def create_supplier(payload: dict, user=Depends(verifyToken)):
-    nid = supplierService.create_supplier(payload)
+def create_supplier(payload: SupplierCreate, user=Depends(verifyToken)):
+    nid = supplierService.create_supplier(payload.model_dump())
     return {"errCode":0, "insertId": nid}
 
 
 @router.put("/{supplier_id}", status_code=200)
-def update_supplier(supplier_id: str, payload: dict, user=Depends(verifyToken)):
-    affected = supplierService.update_supplier(supplier_id, payload)
+def update_supplier(supplier_id: str, payload: SupplierUpdate, user=Depends(verifyToken)):
+    affected = supplierService.update_supplier(supplier_id, payload.model_dump(exclude_unset=True))
     if affected == 0:
         raise HTTPException(status_code=404, detail={"errCode":4, "message":"Supplier not found or no change"})
     return {"errCode":0, "affected": affected}

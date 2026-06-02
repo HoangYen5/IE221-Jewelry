@@ -14,7 +14,75 @@ load_dotenv()
 
 from src.config.connectDB import connectDB
 
-app = FastAPI(title="JewelryStore API (converted)")
+tags_metadata = [
+    {
+        "name": "auth",
+        "description": "Authentication and authorization operations.",
+    },
+    {
+        "name": "dashboard",
+        "description": "Dashboard statistics and charts data.",
+    },
+    {
+        "name": "products",
+        "description": "Product management operations.",
+    },
+    {
+        "name": "categories",
+        "description": "Product category (loại sản phẩm) lookup.",
+    },
+    {
+        "name": "product-types",
+        "description": "Product type management (loại sản phẩm CRUD).",
+    },
+    {
+        "name": "customers",
+        "description": "Customer management operations.",
+    },
+    {
+        "name": "suppliers",
+        "description": "Supplier management operations.",
+    },
+    {
+        "name": "employees",
+        "description": "Employee (account) management operations.",
+    },
+    {
+        "name": "invoices",
+        "description": "Sales invoice (phiếu bán hàng) operations.",
+    },
+    {
+        "name": "purchases",
+        "description": "Purchase order (phiếu mua hàng) operations.",
+    },
+    {
+        "name": "service-tickets",
+        "description": "Service ticket (phiếu dịch vụ) operations.",
+    },
+    {
+        "name": "service-types",
+        "description": "Service type (loại dịch vụ) management.",
+    },
+    {
+        "name": "units",
+        "description": "Unit of measurement (đơn vị tính) management.",
+    },
+    {
+        "name": "reports",
+        "description": "Inventory reporting operations.",
+    },
+    {
+        "name": "profile",
+        "description": "User profile operations.",
+    },
+]
+
+app = FastAPI(
+    title="JewelryStore API",
+    description="Backend API for the Jewelry Store Management System.",
+    version="1.0.0",
+    openapi_tags=tags_metadata,
+)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],

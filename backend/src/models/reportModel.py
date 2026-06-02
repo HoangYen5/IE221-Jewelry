@@ -4,7 +4,7 @@ def getReport(params=None):
     conn = get_connection()
     try:
         cursor = conn.cursor(dictionary=True)
-        cursor.execute('SELECT 1 AS ok')
+        cursor.execute('SELECT * FROM baocaotonkho')
         return cursor.fetchall()
     finally:
         cursor.close()

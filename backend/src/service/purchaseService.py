@@ -14,3 +14,6 @@ def update_purchase(purchase_id, data: dict):
 
 def delete_purchase(purchase_id):
     return purchaseModel.deletePurchase(purchase_id)
+
+def delete_purchases(purchase_ids):
+    return purchaseModel.deletePurchases(purchase_ids)
