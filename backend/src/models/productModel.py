@@ -9,6 +9,7 @@ def getAllProducts():
           s.MaSanPham,
           s.TenSanPham,
           s.HinhAnh,
+          s.MaVach,
           s.MaLoaiSanPham,
           s.isDelete,
           s.DonGiaMuaVao, 
@@ -59,8 +60,8 @@ def createProduct(data: dict):
   try:
     cursor = conn.cursor()
     query = '''
-    INSERT INTO sanpham (MaSanPham, TenSanPham, MaLoaiSanPham, SoLuongTon, DonGiaBanRa, HinhAnh, isDelete)
-    VALUES (%s, %s, %s, %s, %s, %s, %s)
+    INSERT INTO sanpham (MaSanPham, TenSanPham, MaLoaiSanPham, SoLuongTon, DonGiaBanRa, HinhAnh, MaVach, isDelete)
+    VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
     '''
     values = (
       data.get('MaSanPham'),
@@ -69,6 +70,7 @@ def createProduct(data: dict):
       data.get('SoLuongTon', 0),
       data.get('DonGiaBanRa', 0),
       data.get('HinhAnh', ''),
+      data.get('MaVach', ''),
       data.get('isDelete', 1),
     )
     cursor.execute(query, values)
@@ -84,13 +86,14 @@ def updateProduct(product_id, data: dict):
     cursor = conn.cursor()
     query = '''
     UPDATE sanpham
-    SET TenSanPham = %s, MaLoaiSanPham = %s, HinhAnh = %s, DonGiaBanRa = %s, SoLuongTon = %s, isDelete = %s
+    SET TenSanPham = %s, MaLoaiSanPham = %s, HinhAnh = %s, MaVach = %s, DonGiaBanRa = %s, SoLuongTon = %s, isDelete = %s
     WHERE MaSanPham = %s
     '''
     values = (
       data.get('TenSanPham'),
       data.get('MaLoaiSanPham'),
       data.get('HinhAnh'),
+      data.get('MaVach'),
       data.get('DonGiaBanRa', 0),
       data.get('SoLuongTon', 0),
       data.get('isDelete', 1),

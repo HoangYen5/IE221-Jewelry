@@ -10,6 +10,7 @@ class ProductBase(BaseModel):
     DonGiaMuaVao: Optional[float] = None
     DonGiaBanRa: Optional[float] = None
     HinhAnh: Optional[str] = None
+    MaVach: Optional[str] = None
     isDelete: Optional[bool] = None
     createdAt: Optional[datetime] = None
     updatedAt: Optional[datetime] = None

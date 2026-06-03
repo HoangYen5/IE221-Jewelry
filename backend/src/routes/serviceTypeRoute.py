@@ -2,23 +2,23 @@ from ..schemas.serviceTypeSchema import ServicetypeCreate, ServicetypeUpdate, Se
 from typing import Dict, Any, List
 from fastapi import APIRouter, Depends, HTTPException
 from ..service import serviceTypeService
-from ..middleware.authMiddleware import verifyToken
+from ..middleware.authMiddleware import verifyToken, checkPermission
 
 router = APIRouter(prefix="/api/service-types", tags=["service-types"]) 
 
 @router.get("/", status_code=200)
-def list_service_types(user=Depends(verifyToken)):
+def list_service_types(user=Depends(checkPermission(["admin", "manager", "seller"]))):
     """Get a list of all service types."""
     return {"errCode": 0, "data": serviceTypeService.list_service_types()}
 
 @router.post("/create", status_code=201)
-def create_service_type(payload: ServicetypeCreate, user=Depends(verifyToken)):
+def create_service_type(payload: ServicetypeCreate, user=Depends(checkPermission(["admin", "manager"]))):
     """Create a new service type."""
     nid = serviceTypeService.create_service_type(payload.model_dump())
     return {"errCode":0, "insertId": nid}
 
 @router.post("/update", status_code=200)
-def update_service_type(payload: ServicetypeUpdate, user=Depends(verifyToken)):
+def update_service_type(payload: ServicetypeUpdate, user=Depends(checkPermission(["admin", "manager"]))):
     """Update an existing service type."""
     type_id = payload.MaLoaiDV
     if not type_id:
@@ -29,7 +29,7 @@ def update_service_type(payload: ServicetypeUpdate, user=Depends(verifyToken)):
     return {"errCode":0, "affected": affected}
 
 @router.post("/delete", status_code=200)
-def delete_service_type(payload: dict, user=Depends(verifyToken)):
+def delete_service_type(payload: dict, user=Depends(checkPermission(["admin", "manager"]))):
     """Delete a service type by ID."""
     type_id = payload.get("id") or payload.get("MaLoaiDV")
     if not type_id:

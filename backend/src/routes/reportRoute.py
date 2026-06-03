@@ -1,12 +1,12 @@
 from ..schemas.reportSchema import ReportResponse
 from fastapi import APIRouter, Depends
 from ..service import reportService
-from ..middleware.authMiddleware import verifyToken
+from ..middleware.authMiddleware import verifyToken, checkPermission
 
 router = APIRouter(prefix="/api", tags=["reports"]) 
 
 @router.get("/report", status_code=200)
-def get_report(month: int = None, year: int = None, user=Depends(verifyToken)):
+def get_report(month: int = None, year: int = None, user=Depends(checkPermission(["admin", "manager"]))):
     """Get inventory report, optionally filtered by month and year."""
     params = {}
     if month is not None:
