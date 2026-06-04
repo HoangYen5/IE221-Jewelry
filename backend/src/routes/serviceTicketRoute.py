@@ -1,4 +1,4 @@
-from ..schemas.serviceTicketSchema import ServiceticketCreate, ServiceticketUpdate, ServiceticketResponse
+from ..schemas.serviceTicketSchema import ServiceticketCreate, ServiceticketUpdate, ServiceticketStatusUpdate, ServiceticketDelete, ServiceticketResponse
 from typing import Dict, Any, List
 from fastapi import APIRouter, Depends, HTTPException
 from ..service import serviceTicketService
@@ -26,10 +26,10 @@ def create_ticket(payload: ServiceticketCreate, user=Depends(checkPermission(["a
     return {"errCode":0, "insertId": nid}
 
 @router.post("/status", status_code=200)
-def update_ticket_status(payload: dict, user=Depends(checkPermission(["admin", "manager", "seller"]))):
+def update_ticket_status(payload: ServiceticketStatusUpdate, user=Depends(checkPermission(["admin", "manager", "seller"]))):
     """Update the status of a service ticket."""
-    ticket_id = payload.get("id")
-    status = payload.get("status")
+    ticket_id = payload.id
+    status = payload.status
     if not ticket_id or not status:
         raise HTTPException(status_code=400, detail={"errCode":1, "message":"Thiếu id hoặc status"})
     affected = serviceTicketService.update_ticket_status(ticket_id, status)
@@ -38,9 +38,9 @@ def update_ticket_status(payload: dict, user=Depends(checkPermission(["admin", "
     return {"errCode":0, "affected": affected}
 
 @router.post("/delete", status_code=200)
-def delete_tickets(payload: dict, user=Depends(checkPermission(["admin", "manager", "seller"]))):
+def delete_tickets(payload: ServiceticketDelete, user=Depends(checkPermission(["admin", "manager", "seller"]))):
     """Delete one or more service tickets by IDs."""
-    ids = payload.get("ids", [])
+    ids = payload.ids
     if not ids:
         raise HTTPException(status_code=400, detail={"errCode":1, "message":"Thiếu danh sách phiếu dịch vụ"})
     deleted = serviceTicketService.delete_tickets(ids)

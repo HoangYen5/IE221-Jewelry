@@ -1,4 +1,5 @@
 from ..config.connectDB import get_connection
+from ..utils.utils import generate_id
 
 def getAllInvoices():
     conn = get_connection()
@@ -45,12 +46,17 @@ def createInvoice(data: dict):
     conn = get_connection()
     try:
         cursor = conn.cursor()
+        
+        so_phieu = data.get('SoPhieuBH')
+        if not so_phieu:
+            so_phieu = generate_id(cursor, 'PHIEUBANHANG', 'SoPhieuBH', 'PBH')
+            
         # Insert invoice header
         cursor.execute('''
             INSERT INTO PHIEUBANHANG (SoPhieuBH, NgayLap, MaKH, TongTien)
             VALUES (%s, %s, %s, %s)
         ''', (
-            data.get('SoPhieuBH'),
+            so_phieu,
             data.get('NgayLap'),
             data.get('MaKH'),
             data.get('TongTien', 0),
@@ -58,20 +64,20 @@ def createInvoice(data: dict):
         # Insert invoice details
         details = data.get('details', [])
         for i, d in enumerate(details):
-            detail_id = f"CTBH_{data.get('SoPhieuBH')}_{i+1}"
+            detail_id = f"CTBH_{so_phieu}_{i+1}"
             cursor.execute('''
                 INSERT INTO CHITIETBANHANG (MaChiTietBH, SoPhieuBH, MaSanPham, SoLuongBan, DonGiaBan, ThanhTien)
                 VALUES (%s, %s, %s, %s, %s, %s)
             ''', (
                 detail_id,
-                data.get('SoPhieuBH'),
+                so_phieu,
                 d.get('MaSanPham'),
                 d.get('SoLuongBan'),
                 d.get('DonGiaBan'),
                 d.get('ThanhTien', 0),
             ))
         conn.commit()
-        return data.get('SoPhieuBH')
+        return so_phieu
     finally:
         cursor.close()
         conn.close()

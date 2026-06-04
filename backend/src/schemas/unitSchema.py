@@ -3,16 +3,14 @@ from typing import Optional, List, Dict, Any
 from datetime import datetime
 
 class UnitBase(BaseModel):
-    MaDVT: str
     TenDVT: str
-    createdAt: Optional[datetime] = None
-    updatedAt: Optional[datetime] = None
 
 class UnitCreate(UnitBase):
-    pass
+    MaDVT: Optional[str] = None
 
 class UnitUpdate(UnitBase):
-    pass
+    TenDVT: Optional[str] = None
 
 class UnitResponse(UnitBase):
-    pass
+    MaDVT: str
+    createdAt: Optional[datetime] = None

@@ -1,4 +1,4 @@
-from ..schemas.invoiceSchema import InvoiceCreate, InvoiceUpdate, InvoiceResponse
+from ..schemas.invoiceSchema import InvoiceCreate, InvoiceUpdate, InvoiceDelete, InvoiceResponse
 from typing import Dict, Any, List
 from fastapi import APIRouter, Depends, HTTPException
 from ..service import invoiceService
@@ -26,9 +26,9 @@ def create_invoice(payload: InvoiceCreate, user=Depends(checkPermission(["admin"
     return {"errCode":0, "insertId": nid}
 
 @router.post("/delete", status_code=200)
-def delete_invoices(payload: dict, user=Depends(checkPermission(["admin", "manager", "seller"]))):
+def delete_invoices(payload: InvoiceDelete, user=Depends(checkPermission(["admin", "manager", "seller"]))):
     """Delete one or more invoices by IDs."""
-    ids = payload.get("ids", [])
+    ids = payload.ids
     if not ids:
         raise HTTPException(status_code=400, detail={"errCode":1, "message":"Thiếu danh sách phiếu bán hàng"})
     deleted = invoiceService.delete_invoices(ids)

@@ -1,4 +1,5 @@
 from ..config.connectDB import get_connection
+from ..utils.utils import generate_id
 
 def getAllPurchases():
     conn = get_connection()
@@ -45,12 +46,17 @@ def createPurchase(data: dict):
     conn = get_connection()
     try:
         cursor = conn.cursor()
+        
+        so_phieu = data.get('SoPhieuMH')
+        if not so_phieu:
+            so_phieu = generate_id(cursor, 'PHIEUMUAHANG', 'SoPhieuMH', 'PMH')
+            
         # Insert purchase header
         cursor.execute('''
             INSERT INTO PHIEUMUAHANG (SoPhieuMH, NgayLap, MaNCC, TongTien)
             VALUES (%s, %s, %s, %s)
         ''', (
-            data.get('SoPhieuMH'),
+            so_phieu,
             data.get('NgayLap'),
             data.get('MaNCC'),
             data.get('TongTien', 0),
@@ -58,13 +64,13 @@ def createPurchase(data: dict):
         # Insert purchase details
         details = data.get('details', [])
         for i, d in enumerate(details):
-            detail_id = f"CTMH_{data.get('SoPhieuMH')}_{i+1}"
+            detail_id = f"CTMH_{so_phieu}_{i+1}"
             cursor.execute('''
                 INSERT INTO CHITIETMUAHANG (MaChiTietMH, SoPhieuMH, MaSanPham, SoLuongMua, DonGiaMua, ThanhTien)
                 VALUES (%s, %s, %s, %s, %s, %s)
             ''', (
                 detail_id,
-                data.get('SoPhieuMH'),
+                so_phieu,
                 d.get('MaSanPham'),
                 d.get('SoLuongMua'),
                 d.get('DonGiaMua'),
@@ -75,7 +81,7 @@ def createPurchase(data: dict):
                 UPDATE SANPHAM SET DonGiaMuaVao = %s WHERE MaSanPham = %s
             ''', (d.get('DonGiaMua'), d.get('MaSanPham')))
         conn.commit()
-        return data.get('SoPhieuMH')
+        return so_phieu
     finally:
         cursor.close()
         conn.close()

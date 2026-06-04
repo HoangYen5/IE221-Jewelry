@@ -22,6 +22,9 @@ def getDashboardStats():
         cursor.execute('SELECT COUNT(*) AS total FROM SANPHAM WHERE isDelete = 0')
         stats['products'] = cursor.fetchone()['total']
 
+        cursor.execute('SELECT COUNT(*) AS total FROM LOAIDICHVU')
+        stats['servicetypes'] = cursor.fetchone()['total']
+
         return stats
     finally:
         cursor.close()

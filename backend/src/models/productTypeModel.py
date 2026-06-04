@@ -1,4 +1,5 @@
 from ..config.connectDB import get_connection
+from ..utils.utils import generate_id
 
 def getAllProductTypes():
     conn = get_connection()
@@ -20,17 +21,22 @@ def createProductType(data: dict):
     conn = get_connection()
     try:
         cursor = conn.cursor()
+        
+        ma_lsp = data.get('MaLoaiSanPham')
+        if not ma_lsp:
+            ma_lsp = generate_id(cursor, 'LOAISANPHAM', 'MaLoaiSanPham', 'LSP')
+            
         cursor.execute('''
             INSERT INTO LOAISANPHAM (MaLoaiSanPham, TenLoaiSanPham, MaDVT, PhanTramLoiNhuan)
             VALUES (%s, %s, %s, %s)
         ''', (
-            data.get('MaLoaiSanPham'),
+            ma_lsp,
             data.get('TenLoaiSanPham'),
             data.get('MaDVT'),
             data.get('PhanTramLoiNhuan', 30),
         ))
         conn.commit()
-        return data.get('MaLoaiSanPham')
+        return ma_lsp
     finally:
         cursor.close()
         conn.close()

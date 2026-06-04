@@ -146,7 +146,6 @@ const Dashboard = () => {
             <h3>LOẠI DỊCH VỤ</h3>
             <BsFillGrid3X3GapFill className="card_icon" />
           </div>
-
           <h1>{stats.servicestypes}</h1>
         </div>
         <div className="card">

@@ -1,21 +1,16 @@
 from pydantic import BaseModel
-from typing import Optional, List, Dict, Any
-from datetime import datetime
+from typing import Optional
 
-class ReportBase(BaseModel):
+
+class ReportCreate(BaseModel):
     Thang: int
     Nam: int
     MaSanPham: str
-    TonDau: Optional[int] = None
-    SoLuongMuaVao: Optional[int] = None
-    SoLuongBanRa: Optional[int] = None
-    TonCuoi: Optional[int] = None
+    TonDau: Optional[int] = 0
+    SoLuongMuaVao: Optional[int] = 0
+    SoLuongBanRa: Optional[int] = 0
+    TonCuoi: Optional[int] = 0
 
-class ReportCreate(ReportBase):
-    pass
 
-class ReportUpdate(ReportBase):
-    pass
-
-class ReportResponse(ReportBase):
-    pass
+class ReportResponse(ReportCreate):
+    TenSanPham: Optional[str] = None

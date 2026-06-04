@@ -1,4 +1,4 @@
-from ..schemas.purchaseSchema import PurchaseCreate, PurchaseUpdate, PurchaseResponse
+from ..schemas.purchaseSchema import PurchaseCreate, PurchaseUpdate, PurchaseDelete, PurchaseResponse
 from typing import Dict, Any, List
 from fastapi import APIRouter, Depends, HTTPException
 from ..service import purchaseService
@@ -29,9 +29,9 @@ def create_purchase(payload: PurchaseCreate, user=Depends(checkPermission(["admi
 
 
 @router.post("/delete", status_code=200)
-def delete_purchases(payload: dict, user=Depends(checkPermission(["admin", "manager", "seller"]))):
+def delete_purchases(payload: PurchaseDelete, user=Depends(checkPermission(["admin", "manager", "seller"]))):
     """Delete one or more purchase orders by IDs."""
-    ids = payload.get("ids", [])
+    ids = payload.ids
     if not ids:
         raise HTTPException(status_code=400, detail={"errCode":1, "message":"Thiếu danh sách phiếu mua hàng"})
     deleted = purchaseService.delete_purchases(ids)

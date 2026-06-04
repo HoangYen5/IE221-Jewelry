@@ -1,4 +1,5 @@
 from ..config.connectDB import get_connection
+from ..utils.utils import generate_id
 
 def getAllServiceTypes():
     conn = get_connection()
@@ -16,17 +17,22 @@ def createServiceType(data: dict):
     conn = get_connection()
     try:
         cursor = conn.cursor()
+        
+        ma_loai = data.get('MaLoaiDV')
+        if not ma_loai:
+            ma_loai = generate_id(cursor, 'LOAIDICHVU', 'MaLoaiDV', 'LDV')
+            
         cursor.execute('''
             INSERT INTO LOAIDICHVU (MaLoaiDV, TenLoaiDV, DonGiaDV, PhanTramTraTruoc)
             VALUES (%s, %s, %s, %s)
         ''', (
-            data.get('MaLoaiDV'),
+            ma_loai,
             data.get('TenLoaiDV'),
             data.get('DonGiaDV', 0),
             data.get('PhanTramTraTruoc', 0.5),
         ))
         conn.commit()
-        return data.get('MaLoaiDV')
+        return ma_loai
     finally:
         cursor.close()
         conn.close()

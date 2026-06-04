@@ -3,17 +3,16 @@ from typing import Optional, List, Dict, Any
 from datetime import datetime
 
 class SupplierBase(BaseModel):
-    MaNCC: str
     TenNCC: str
     DiaChi: Optional[str] = None
     SoDienThoai: Optional[str] = None
-    createdAt: Optional[datetime] = None
 
 class SupplierCreate(SupplierBase):
-    pass
+    MaNCC: Optional[str] = None
 
 class SupplierUpdate(SupplierBase):
-    pass
+    TenNCC: Optional[str] = None
 
 class SupplierResponse(SupplierBase):
-    pass
+    MaNCC: str
+    createdAt: Optional[datetime] = None
