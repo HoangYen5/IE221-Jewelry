@@ -3,4 +3,12 @@ backend/node_modules/
 frontend/node_modules/
 .DS_Store
 .env
-source_dump.txt
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+uploads/
