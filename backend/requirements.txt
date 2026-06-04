@@ -4,3 +4,7 @@ mysql-connector-python==8.1.0
 python-dotenv==1.0.0
 PyJWT==2.8.0
 pymysql==1.1.0
+qrcode
+pillow
+pytest
+httpx

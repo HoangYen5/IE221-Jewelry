@@ -1,4 +1,0 @@
-employee -> miss nhanvien table
-invoice -> miss hoadon table
-profile -> profile ?
-purchase -> miss phieunhap table

@@ -6,6 +6,6 @@ class LoginRequest(BaseModel):
     MatKhau: str
 
 class ChangePasswordRequest(BaseModel):
-    username: str
-    oldPassword: str
-    newPassword: str
+    TenTaiKhoan: str
+    MatKhauCu: str
+    MatKhauMoi: str

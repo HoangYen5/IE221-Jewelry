@@ -1,13 +1,13 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from typing import List, Dict, Any
 from ..service import customerService
-from ..middleware.authMiddleware import verifyToken
+from ..middleware.authMiddleware import verifyToken, checkPermission
 from ..schemas.customerSchema import CustomerCreate, CustomerUpdate, CustomerResponse
 
 router = APIRouter(prefix="/api/customers", tags=["customers"]) 
 
 @router.get("/", status_code=200, response_model=Dict[str, Any])
-def list_customers(user=Depends(verifyToken)):
+def list_customers(user=Depends(checkPermission(["admin", "manager", "seller"]))):
     """
     Get a list of all customers.
     """
@@ -15,7 +15,7 @@ def list_customers(user=Depends(verifyToken)):
 
 
 @router.get("/{customer_id}", status_code=200, response_model=Dict[str, Any])
-def get_customer(customer_id: str, user=Depends(verifyToken)):
+def get_customer(customer_id: str, user=Depends(checkPermission(["admin", "manager", "seller"]))):
     """
     Get details of a specific customer by ID.
     """
@@ -26,7 +26,7 @@ def get_customer(customer_id: str, user=Depends(verifyToken)):
 
 
 @router.post("/", status_code=201)
-def create_customer(payload: CustomerCreate, user=Depends(verifyToken)):
+def create_customer(payload: CustomerCreate, user=Depends(checkPermission(["admin", "manager", "seller"]))):
     """
     Create a new customer.
     """
@@ -35,7 +35,7 @@ def create_customer(payload: CustomerCreate, user=Depends(verifyToken)):
 
 
 @router.put("/{customer_id}", status_code=200)
-def update_customer(customer_id: str, payload: CustomerUpdate, user=Depends(verifyToken)):
+def update_customer(customer_id: str, payload: CustomerUpdate, user=Depends(checkPermission(["admin", "manager", "seller"]))):
     """
     Update an existing customer.
     """
@@ -46,7 +46,7 @@ def update_customer(customer_id: str, payload: CustomerUpdate, user=Depends(veri
 
 
 @router.delete("/{customer_id}", status_code=200)
-def delete_customer(customer_id: str, user=Depends(verifyToken)):
+def delete_customer(customer_id: str, user=Depends(checkPermission(["admin", "manager", "seller"]))):
     """
     Delete a customer.
     """
