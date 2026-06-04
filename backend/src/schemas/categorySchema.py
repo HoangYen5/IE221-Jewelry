@@ -3,17 +3,18 @@ from typing import Optional, List, Dict, Any
 from datetime import datetime
 
 class CategoryBase(BaseModel):
-    MaLoaiSanPham: str
     TenLoaiSanPham: str
     MaDVT: str
-    PhanTramLoiNhuan: Optional[float] = None
-    createdAt: Optional[datetime] = None
+    PhanTramLoiNhuan: Optional[float] = 30
 
 class CategoryCreate(CategoryBase):
-    pass
+    MaLoaiSanPham: Optional[str] = None
 
 class CategoryUpdate(CategoryBase):
-    pass
+    TenLoaiSanPham: Optional[str] = None
+    MaDVT: Optional[str] = None
+    PhanTramLoiNhuan: Optional[float] = None
 
 class CategoryResponse(CategoryBase):
-    pass
+    MaLoaiSanPham: str
+    createdAt: Optional[datetime] = None

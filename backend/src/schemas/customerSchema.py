@@ -3,17 +3,16 @@ from typing import Optional, List, Dict, Any
 from datetime import datetime
 
 class CustomerBase(BaseModel):
-    MaKH: str
     TenKH: str
     SoDienThoai: Optional[str] = None
     DiaChi: Optional[str] = None
-    createdAt: Optional[datetime] = None
 
 class CustomerCreate(CustomerBase):
-    pass
+    MaKH: Optional[str] = None
 
 class CustomerUpdate(CustomerBase):
-    pass
+    TenKH: Optional[str] = None
 
 class CustomerResponse(CustomerBase):
-    pass
+    MaKH: str
+    createdAt: Optional[datetime] = None

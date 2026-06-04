@@ -1,4 +1,5 @@
 from ..config.connectDB import get_connection
+from ..utils.utils import generate_id
 
 def getAllProducts():
     conn = get_connection()
@@ -59,12 +60,17 @@ def createProduct(data: dict):
   conn = get_connection()
   try:
     cursor = conn.cursor()
+    
+    ma_sp = data.get('MaSanPham')
+    if not ma_sp:
+        ma_sp = generate_id(cursor, 'sanpham', 'MaSanPham', 'SP')
+
     query = '''
     INSERT INTO sanpham (MaSanPham, TenSanPham, MaLoaiSanPham, SoLuongTon, DonGiaBanRa, HinhAnh, MaVach, isDelete)
     VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
     '''
     values = (
-      data.get('MaSanPham'),
+      ma_sp,
       data.get('TenSanPham'),
       data.get('MaLoaiSanPham'),
       data.get('SoLuongTon', 0),
@@ -75,7 +81,8 @@ def createProduct(data: dict):
     )
     cursor.execute(query, values)
     conn.commit()
-    return cursor.lastrowid
+    # Return the generated ID instead of lastrowid since it's not auto-increment int
+    return ma_sp
   finally:
     cursor.close()
     conn.close()

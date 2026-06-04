@@ -1,4 +1,5 @@
 from ..config.connectDB import get_connection
+from ..utils.utils import generate_id
 
 def getAllUnits():
     conn = get_connection()
@@ -53,12 +54,17 @@ def createUnit(data: dict):
     conn = get_connection()
     try:
         cursor = conn.cursor()
+        
+        ma_dvt = data.get('MaDVT')
+        if not ma_dvt:
+            ma_dvt = generate_id(cursor, 'DONVITINH', 'MaDVT', 'DVT')
+            
         cursor.execute('''
             INSERT INTO DONVITINH (MaDVT, TenDVT)
             VALUES (%s, %s)
-        ''', (data.get('MaDVT'), data.get('TenDVT')))
+        ''', (ma_dvt, data.get('TenDVT')))
         conn.commit()
-        return data.get('MaDVT')
+        return ma_dvt
     finally:
         cursor.close()
         conn.close()

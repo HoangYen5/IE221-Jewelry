@@ -1,4 +1,4 @@
-from ..schemas.productTypeSchema import ProducttypeCreate, ProducttypeUpdate, ProducttypeResponse
+from ..schemas.productTypeSchema import ProductTypeCreate, ProductTypeUpdate, ProductTypeDelete, ProductTypeResponse
 from typing import Dict, Any, List
 from fastapi import APIRouter, Depends, HTTPException
 from ..service import productTypeService
@@ -12,13 +12,13 @@ def list_types(user=Depends(checkPermission(["admin", "manager", "seller"]))):
     return {"errCode": 0, "data": productTypeService.get_types()}
 
 @router.post("/create", status_code=201)
-def create_type(payload: ProducttypeCreate, user=Depends(checkPermission(["admin", "manager"]))):
+def create_type(payload: ProductTypeCreate, user=Depends(checkPermission(["admin", "manager"]))):
     """Create a new product type."""
     nid = productTypeService.create_type(payload.model_dump())
     return {"errCode":0, "insertId": nid}
 
 @router.post("/update", status_code=200)
-def update_type(payload: ProducttypeUpdate, user=Depends(checkPermission(["admin", "manager"]))):
+def update_type(payload: ProductTypeUpdate, user=Depends(checkPermission(["admin", "manager"]))):
     """Update an existing product type."""
     type_id = payload.MaLoaiSanPham
     if not type_id:
@@ -29,9 +29,9 @@ def update_type(payload: ProducttypeUpdate, user=Depends(checkPermission(["admin
     return {"errCode":0, "affected": affected}
 
 @router.post("/delete", status_code=200)
-def delete_type(payload: dict, user=Depends(checkPermission(["admin", "manager"]))):
+def delete_type(payload: ProductTypeDelete, user=Depends(checkPermission(["admin", "manager"]))):
     """Delete a product type by ID."""
-    type_id = payload.get("id") or payload.get("MaLoaiSanPham")
+    type_id = payload.id or payload.MaLoaiSanPham
     if not type_id:
         raise HTTPException(status_code=400, detail={"errCode":1, "message":"Thiếu id"})
     deleted = productTypeService.delete_type(type_id)

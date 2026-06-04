@@ -3,22 +3,27 @@ from typing import Optional, List
 from datetime import datetime
 
 class InvoiceBase(BaseModel):
-    SoPhieuBH: Optional[str] = None
     NgayLap: Optional[datetime] = None
     MaKH: str
-    TongTien: Optional[float] = None
+    TongTien: Optional[float] = 0
 
 class InvoiceDetail(BaseModel):
     MaSanPham: str
     SoLuongBan: int
     DonGiaBan: float
-    ThanhTien: Optional[float] = None
+    ThanhTien: Optional[float] = 0
 
 class InvoiceCreate(InvoiceBase):
+    SoPhieuBH: Optional[str] = None
     details: Optional[List[InvoiceDetail]] = None
 
 class InvoiceUpdate(InvoiceBase):
+    MaKH: Optional[str] = None
     details: Optional[List[InvoiceDetail]] = None
 
+class InvoiceDelete(BaseModel):
+    ids: List[str]
+
 class InvoiceResponse(InvoiceBase):
-    pass
+    SoPhieuBH: str
+    details: Optional[List[InvoiceDetail]] = None

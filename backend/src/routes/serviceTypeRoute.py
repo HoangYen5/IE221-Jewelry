@@ -1,4 +1,4 @@
-from ..schemas.serviceTypeSchema import ServicetypeCreate, ServicetypeUpdate, ServicetypeResponse
+from ..schemas.serviceTypeSchema import ServicetypeCreate, ServicetypeUpdate, ServicetypeDelete, ServicetypeResponse
 from typing import Dict, Any, List
 from fastapi import APIRouter, Depends, HTTPException
 from ..service import serviceTypeService
@@ -29,9 +29,9 @@ def update_service_type(payload: ServicetypeUpdate, user=Depends(checkPermission
     return {"errCode":0, "affected": affected}
 
 @router.post("/delete", status_code=200)
-def delete_service_type(payload: dict, user=Depends(checkPermission(["admin", "manager"]))):
+def delete_service_type(payload: ServicetypeDelete, user=Depends(checkPermission(["admin", "manager"]))):
     """Delete a service type by ID."""
-    type_id = payload.get("id") or payload.get("MaLoaiDV")
+    type_id = payload.id or payload.MaLoaiDV
     if not type_id:
         raise HTTPException(status_code=400, detail={"errCode":1, "message":"Thiếu id"})
     deleted = serviceTypeService.delete_service_type(type_id)

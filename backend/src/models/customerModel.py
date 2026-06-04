@@ -1,4 +1,5 @@
 from ..config.connectDB import get_connection
+from ..utils.utils import generate_id
 
 def getAllCustomers():
     conn = get_connection()
@@ -23,16 +24,21 @@ def getCustomerById(customer_id):
 def createCustomer(data: dict):
     if not data:
         return None
-    cols = ','.join(data.keys())
-    placeholders = ','.join(['%s'] * len(data))
-    values = tuple(data.values())
-    query = f"INSERT INTO khachhang ({cols}) VALUES ({placeholders})"
     conn = get_connection()
     try:
         cursor = conn.cursor()
+        
+        if 'MaKH' not in data or not data['MaKH']:
+            data['MaKH'] = generate_id(cursor, 'khachhang', 'MaKH', 'KH')
+            
+        cols = ','.join(data.keys())
+        placeholders = ','.join(['%s'] * len(data))
+        values = tuple(data.values())
+        query = f"INSERT INTO khachhang ({cols}) VALUES ({placeholders})"
+        
         cursor.execute(query, values)
         conn.commit()
-        return cursor.lastrowid
+        return data.get('MaKH')
     finally:
         cursor.close()
         conn.close()

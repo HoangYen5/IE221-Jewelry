@@ -1,4 +1,5 @@
 from ..config.connectDB import get_connection
+from ..utils.utils import generate_id
 
 def getAllServiceTickets():
     conn = get_connection()
@@ -45,11 +46,16 @@ def createServiceTicket(data: dict):
     conn = get_connection()
     try:
         cursor = conn.cursor()
+        
+        so_phieu = data.get('SoPhieuDV')
+        if not so_phieu:
+            so_phieu = generate_id(cursor, 'PHIEUDICHVU', 'SoPhieuDV', 'PDV')
+            
         cursor.execute('''
             INSERT INTO PHIEUDICHVU (SoPhieuDV, NgayLap, MaKH, TongTien, TongTienTraTruoc, TongTienConLai, TinhTrang)
             VALUES (%s, %s, %s, %s, %s, %s, %s)
         ''', (
-            data.get('SoPhieuDV'),
+            so_phieu,
             data.get('NgayLap'),
             data.get('MaKH'),
             data.get('TongTien', 0),
@@ -59,13 +65,13 @@ def createServiceTicket(data: dict):
         ))
         details = data.get('details', [])
         for i, d in enumerate(details):
-            detail_id = f"CTDV_{data.get('SoPhieuDV')}_{i+1}"
+            detail_id = f"CTDV_{so_phieu}_{i+1}"
             cursor.execute('''
                 INSERT INTO CHITIETPHIEUDICHVU (MaChiTietDV, SoPhieuDV, MaLoaiDV, DonGiaDuocTinh, SoLuong, ThanhTien, TraTruoc, ConLai, NgayGiao, TinhTrang)
                 VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
             ''', (
                 detail_id,
-                data.get('SoPhieuDV'),
+                so_phieu,
                 d.get('MaLoaiDV'),
                 d.get('DonGiaDuocTinh'),
                 d.get('SoLuong', 1),
@@ -76,7 +82,7 @@ def createServiceTicket(data: dict):
                 d.get('TinhTrang', 'Chưa hoàn thành'),
             ))
         conn.commit()
-        return data.get('SoPhieuDV')
+        return so_phieu
     finally:
         cursor.close()
         conn.close()
